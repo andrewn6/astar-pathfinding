@@ -1,5 +1,6 @@
 import pygame
 import math
+import sys
 from queue import PriorityQueue
 
 WIDTH = 800
@@ -17,6 +18,7 @@ ORANGE = (255, 165 ,0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
 
+# Node class/Creating new spots
 class Node:
   def __init__(self, row, col, width, total_rows):
     self.row = row 
@@ -54,6 +56,9 @@ class Node:
   def reset(self):
     self.color == WHITE 
   
+  def make_start(self):
+    self.color == ORANGE
+
   def make_closed(self):
     self.color == RED 
 
@@ -70,4 +75,109 @@ class Node:
     self.color == PURPLE
   
   def draw(self, win):
-    pygame.draw.rect(win, self.color, ())
+    pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
+
+  def update_neighbors(self, grid):
+    pass
+
+  def __lt__(self, other):
+    return False
+  
+# calculate manhatten distance
+def h(p1, p2):
+  x1, y1 = p1 
+  x2, y2 = p2
+  # This can be swapped.
+  return abs(x1 - x2 + abs(y1 - y2))
+
+# Make a grid for the path/viualier
+def make_grid(rows, width):
+  grid = []
+  gap = width // rows
+  for i in range(rows):
+    grid.append([])
+    # Loop around rows and create new "Spot" Or Node
+    for j in range(rows):
+      # Add new spot
+      node = Node(i, j, gap, rows)
+      grid[i].append(node)
+  return grid
+
+# Add gray grid lines to be able to view different spots 
+def draw_grid(win, rows, width):
+  gap = width // rows
+  # loop around rows then draw lines
+  for i in range(rows):
+    # Multiple the index of row by gap
+    pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))
+    for j in range(rows):
+       pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
+
+# Make it 60 frames per second so its cleannn
+def draw(win, grid, rows, width):
+  win.fill(WHITE)
+  
+  for row in grid:
+    for spot in row:
+      spot.draw(win)
+  
+  draw_grid(win, rows, width)
+  pygame.display.update()
+
+def get_clicked_pos(pos, rows, width):
+  gap = width // rows 
+  y, x = pos
+
+  row = y // gap 
+  col = x // gap
+  return row, col
+
+# Main driver code/display
+def main(win, width):
+  ROWS = 50
+  grid = make_grid(ROWS, width)
+
+  start = None 
+  end = None 
+  
+  run = True 
+  started = False
+  while run:
+
+    draw(win, grid, ROWS, width)
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        run = False
+      
+      if started:
+        continue
+      # First mouse button
+      if pygame.mouse.get_pressed()[0]:
+        pos = pygame.mouse.get_pos()
+        row, col = get_clicked_pos(pos, ROWS, width)
+        spot = grid[row][col]
+        if not start and spot != end:
+          start = spot 
+          start.make_start()
+
+        elif not end and spot != start:
+          end = spot 
+          end.make_end()
+
+        elif spot != end and spot != start:
+          spot.make_barrier()
+
+      elif pygame.mouse.get_pressed()[2]:
+        pos = pygame.mouse.get_pos()
+        row, col = get_clicked_pos(pos, ROWS, width)
+        spot = grid[row][col]
+        spot.reset()
+        if spot == start:
+          start = None
+        elif spot == end:
+          end == None
+          
+  pygame.quit()
+
+main(WIN, WIDTH)
