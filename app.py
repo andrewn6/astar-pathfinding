@@ -18,7 +18,6 @@ ORANGE = (255, 165 ,0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
 
-# Node class/Creating new spots
 class Node:
   def __init__(self, row, col, width, total_rows):
     self.row = row 
@@ -26,7 +25,7 @@ class Node:
     self.x = row * width
     self.y = col * width
     self.color = WHITE 
-    self.neighbors = [] 
+    self.neighbors = []
     self.width = width 
     self.total_rows = total_rows
   
@@ -54,61 +53,68 @@ class Node:
     return self.color == TURQUOISE
   
   def reset(self):
-    self.color == WHITE 
+    self.color = WHITE 
   
   def make_start(self):
-    self.color == ORANGE
+    self.color = ORANGE
 
   def make_closed(self):
-    self.color == RED 
+    self.color = RED 
 
   def make_open(self):
-    self.color == GREEN 
+    self.color = GREEN 
   
   def make_barrier(self):
-    self.color == BLACK 
+    self.color ==BLACK 
   
   def make_end(self):
-    self.color == TURQUOISE
+    self.color = TURQUOISE
   
   def make_path(self):
-    self.color == PURPLE
+    self.color = PURPLE
   
   def draw(self, win):
     pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
   def update_neighbors(self, grid):
-    pass
+    self.neighbors = []
+
+    if self.row < self.total_rows -1 and not grid[self.row - 1][self.col].is_barrier():
+      self.neighbors.append(grid[self.row - 1][self.col])
+    
+    if self.row > 0 and not grid[self.row - 1][self.cols].is_barrier():
+      self.neighbors.append(grid[self.row - 1][self.cols])
+    
+    if self.cols < self.total_rows -1 and not grid[self.row][self.cols + 1].is_barrier():
+      self.neighbors.append(grid[self.row][self.cols + 1])
+
+    if self.cols > 0 and not grid[self.row][self.cols - 1].is_barrier():
+      self.neighbors.append(grid[self.row][self.cols - 1])
+
+
 
   def __lt__(self, other):
     return False
-  
-# calculate manhatten distance
-def h(p1, p2):
+
+def heu(p1, p2):
   x1, y1 = p1 
   x2, y2 = p2
-  # This can be swapped.
   return abs(x1 - x2 + abs(y1 - y2))
 
-# Make a grid for the path/viualier
 def make_grid(rows, width):
   grid = []
   gap = width // rows
   for i in range(rows):
     grid.append([])
-    # Loop around rows and create new "Spot" Or Node
     for j in range(rows):
       # Add new spot
       node = Node(i, j, gap, rows)
       grid[i].append(node)
   return grid
 
-# Add gray grid lines to be able to view different spots 
 def draw_grid(win, rows, width):
   gap = width // rows
-  # loop around rows then draw lines
   for i in range(rows):
-    # Multiple the index of row by gap
     pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))
     for j in range(rows):
        pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
@@ -132,7 +138,42 @@ def get_clicked_pos(pos, rows, width):
   col = x // gap
   return row, col
 
-# Main driver code/display
+def definePath(draw, refNodePath, curNode):
+  while curNode in refNodePath:
+    curNode = refNodePath[curNode]
+    curNode.make_path()
+    draw()
+
+# Algorithim goes on top of the queue, It is the first to get dequeued.
+def algorithim(draw, grid, start, end):
+  pQueue = PriorityQueue()
+  count = 0
+
+  pQueue.put((0, count, start))
+  initQueue = {start}
+  refNodePath = {}
+
+  gScore = {node: float("inf") for row in grid for node in row}
+  fScore = {node: float("inf") for row in grid for node in row}
+
+  gScore[start] = 0
+  fScore[start] =  heu(start.get_position(), end.get_position())
+
+  while not pQueue.empty():
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        return False
+    
+    currentNode = pQueue.get()[2]
+    initQueue.remove(currentNode)
+
+    if currentNode == end:
+      start.make_start()
+      end.make_end()
+      definePath(draw, refNodePath, currentNode)
+      return True
+    
+    # Check for current node neighbors, with manatthen distance than dequeue the algorithim
 def main(win, width):
   ROWS = 50
   grid = make_grid(ROWS, width)
@@ -143,7 +184,6 @@ def main(win, width):
   run = True 
   started = False
   while run:
-
     draw(win, grid, ROWS, width)
 
     for event in pygame.event.get():
@@ -152,7 +192,6 @@ def main(win, width):
       
       if started:
         continue
-      # First mouse button
       if pygame.mouse.get_pressed()[0]:
         pos = pygame.mouse.get_pos()
         row, col = get_clicked_pos(pos, ROWS, width)
@@ -175,9 +214,15 @@ def main(win, width):
         spot.reset()
         if spot == start:
           start = None
+
         elif spot == end:
           end == None
-          
+      
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE and not started:
+          pass
+
+      
   pygame.quit()
 
 main(WIN, WIDTH)
