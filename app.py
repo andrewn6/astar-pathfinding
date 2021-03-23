@@ -40,15 +40,12 @@ class Node:
   def is_open(self):
     return self.color == GREEN
   
-  # Check if its a barrier if the color is black
   def is_barrier(self):
     return self.color == BLACK
   
-  # Check if its the start via Orange
   def is_start(self):
     return self.color == ORANGE 
 
-  # Check if its the end via Purple color
   def is_end(self):
     return self.color == TURQUOISE
   
@@ -91,8 +88,6 @@ class Node:
     if self.cols > 0 and not grid[self.row][self.cols - 1].is_barrier():
       self.neighbors.append(grid[self.row][self.cols - 1])
 
-
-
   def __lt__(self, other):
     return False
 
@@ -119,7 +114,6 @@ def draw_grid(win, rows, width):
     for j in range(rows):
        pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
 
-# Make it 60 frames per second so its cleannn
 def draw(win, grid, rows, width):
   win.fill(WHITE)
   
@@ -144,7 +138,6 @@ def definePath(draw, refNodePath, curNode):
     curNode.make_path()
     draw()
 
-# Algorithim goes on top of the queue, It is the first to get dequeued.
 def algorithim(draw, grid, start, end):
   pQueue = PriorityQueue()
   count = 0
@@ -173,7 +166,26 @@ def algorithim(draw, grid, start, end):
       definePath(draw, refNodePath, currentNode)
       return True
     
-    # Check for current node neighbors, with manatthen distance than dequeue the algorithim
+    for neighbor in currentNode.neighbors:
+      tempGScore = gScore[currentNode] + 1
+
+      if tempGScore < gScore[neighbor]:
+        refNodePath[neighbor] = currentNode
+        gScore[neighbor] = tempGScore
+        fScore[neighbor] = tempGScore + heu(neighbor.get_position(), end.get_position())
+
+        if neighbor not in initQueue:
+          count += 1
+          pQueue.put((fScore[neighbor], count, neighbor))
+          initQueue.add(neighbor)
+          neighbor.make_start()
+
+    if currentNode != end:
+      currentNode.make_end()
+    
+    draw()
+  # is empty return false other wise
+  return False
 def main(win, width):
   ROWS = 50
   grid = make_grid(ROWS, width)
@@ -220,9 +232,12 @@ def main(win, width):
       
       if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_SPACE and not started:
-          pass
+          for row in grid:
+            for node in row:
+              node.update_neighbors()
 
-      
-  pygame.quit()
+          algorithim(lambda: draw(win, grid, width), grid, start, end)
+
+     
 
 main(WIN, WIDTH)
