@@ -1,6 +1,6 @@
 A start pathfinding visualiser in python.
 
-This is the first time I implemented the a-star pathfinding algorithim, I created the visualiser with pygame. Although Big props to @Techwithtim for having an amazing tutorial on the algorithim. 
+This is the first attempt I implemented the a-star pathfinding algorithim, I created the visualiser with pygame. Although Big props to @Techwithtim for having an amazing tutorial on the algorithim. 
 
 ## Basic Controls
 You must create a map to start the pathfinding! The start node is orange, end node is turqoise and the walls/drawing are black. 
