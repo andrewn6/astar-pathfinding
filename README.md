@@ -12,7 +12,7 @@ To create nodes:
   - It is the same as creation, Except right click!
  
  
- > Note: Unfortunately My algorithm does not support diaganol path finding, Only non diaganol path finding.
+ > Note: Unfortunately My algorithm does not support diagonal path finding, Only non diagonal path finding.
  
 https://github.com/andrewnijmeh/astar-pathfinding/blob/main/Screenshots/screen.gif
 
