@@ -56,20 +56,20 @@ class Node:
     self.color = ORANGE
 
   def make_closed(self):
-    self.color = RED 
+    self.color = RED
 
   def make_open(self):
-    self.color = GREEN 
-  
+    self.color = GREEN
+
   def make_barrier(self):
-    self.color ==BLACK 
-  
+    self.color ==BLACK
+
   def make_end(self):
     self.color = TURQUOISE
-  
+
   def make_path(self):
     self.color = PURPLE
-  
+
   def draw(self, win):
     pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
@@ -78,10 +78,10 @@ class Node:
 
     if self.row < self.total_rows -1 and not grid[self.row - 1][self.col].is_barrier():
       self.neighbors.append(grid[self.row - 1][self.col])
-    
+
     if self.row > 0 and not grid[self.row - 1][self.cols].is_barrier():
       self.neighbors.append(grid[self.row - 1][self.cols])
-    
+
     if self.cols < self.total_rows -1 and not grid[self.row][self.cols + 1].is_barrier():
       self.neighbors.append(grid[self.row][self.cols + 1])
 
@@ -92,7 +92,7 @@ class Node:
     return False
 
 def heu(p1, p2):
-  x1, y1 = p1 
+  x1, y1 = p1
   x2, y2 = p2
   return abs(x1 - x2 + abs(y1 - y2))
 
@@ -116,11 +116,11 @@ def draw_grid(win, rows, width):
 
 def draw(win, grid, rows, width):
   win.fill(WHITE)
-  
+
   for row in grid:
     for spot in row:
       spot.draw(win)
-  
+
   draw_grid(win, rows, width)
   pygame.display.update()
 
@@ -247,13 +247,7 @@ def main(win, width):
                 node.update_neighbors(grid)
             
             algorithim(lambda: (draw(WIN, ROWS, width, grid), grid, start, end)
-        
-        if event.pygame == pygame.K_c:
-          start = None 
-          end = None
-          grid = make_grid(ROWS, width)
-     
 
-  pygame.quit()
+        
 
 main(WIN, WIDTH)
